@@ -60,7 +60,7 @@ app.registerExtension({
                 infoPanel.style.lineHeight = "1.3";
                 infoPanel.style.flexShrink = "0";
                 infoPanel.style.overflow = "hidden";
-                infoPanel.innerHTML = '<span style="color: #888;">↑/↓ zoom · ←/→ orbit · PgUp/PgDn (or Shift+↑/↓) tilt · scroll still zooms. Hover the viewer for keys.</span>';
+                infoPanel.innerHTML = '<span style="color: #888;">↑/↓ zoom · ←/→ orbit · PgUp/PgDn (or Shift+↑/↓) tilt · WASD pan · scroll still zooms. Hover the viewer for keys.</span>';
 
                 // Add iframe and info panel to container
                 container.appendChild(iframe);
@@ -203,7 +203,7 @@ app.registerExtension({
                                 <span style="color: #888;">Size:</span>
                                 <span>${fileSizeMb} MB</span>
                                 <span style="color: #888;">Keys:</span>
-                                <span style="color: #888;">↑/↓ zoom · ←/→ orbit · PgUp/PgDn tilt</span>
+                                <span style="color: #888;">↑/↓ zoom · ←/→ orbit · PgUp/PgDn tilt · WASD pan</span>
                             </div>
                         `;
 

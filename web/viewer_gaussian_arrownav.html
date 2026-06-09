@@ -966,16 +966,20 @@
         //   Left / Right         orbit horizontally
         //   PageUp / PageDown    tilt up / down  (vertical orbit)
         //   Shift + Up / Down    tilt up / down  (alias for PageUp/Down)
+        //   W / A / S / D        pan up / left / down / right
         // ============================================================
         (function setupArrowKeyNavigation() {
             // Per-frame increments (applied while a key is held down).
             const ZOOM_PER_FRAME  = 28;  // synthetic wheel deltaY magnitude
             const ORBIT_PX_PER_FRAME = 6; // horizontal drag px -> ~1deg/frame
             const TILT_PX_PER_FRAME  = 6; // vertical drag px
+            const PAN_PX_PER_FRAME   = 8; // right-drag px (pan the look-at point)
 
             const NAV_KEYS = new Set([
                 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'PageUp', 'PageDown',
             ]);
+            const PAN_KEYS = new Set(['KeyW', 'KeyA', 'KeyS', 'KeyD']);
+            const ACTION_KEYS = new Set([...NAV_KEYS, ...PAN_KEYS]);
             const held = new Set();
 
             // Make the canvas focusable and claim focus when the pointer is
@@ -992,7 +996,7 @@
             window.addEventListener('keydown', (e) => {
                 if (document.activeElement !== canvas) return; // only when hovered/clicked
                 if (e.shiftKey) held.add('Shift'); else held.delete('Shift');
-                if (NAV_KEYS.has(e.code)) {
+                if (ACTION_KEYS.has(e.code)) {
                     held.add(e.code);
                     e.preventDefault(); // stop the iframe/page from scrolling
                 }
@@ -1029,6 +1033,21 @@
                     clientX: x + dx, clientY: y + dy, bubbles: true, cancelable: true,
                 }));
             }
+            function synthPan(dx, dy) {
+                const r = canvas.getBoundingClientRect();
+                const x = r.left + r.width / 2;
+                const y = r.top + r.height / 2;
+                // right-button drag == pan (moves the look-at point) in OrbitControls
+                canvas.dispatchEvent(new MouseEvent('mousedown', {
+                    button: 2, buttons: 2, clientX: x, clientY: y, bubbles: true, cancelable: true,
+                }));
+                canvas.dispatchEvent(new MouseEvent('mousemove', {
+                    buttons: 2, clientX: x + dx, clientY: y + dy, bubbles: true, cancelable: true,
+                }));
+                window.dispatchEvent(new MouseEvent('mouseup', {
+                    clientX: x + dx, clientY: y + dy, bubbles: true, cancelable: true,
+                }));
+            }
 
             // While keys are held, nudge the camera a little each frame. The
             // viewer's own render loop applies these targets with dampening.
@@ -1041,13 +1060,19 @@
                     if (held.has('ArrowRight')) synthDrag(-ORBIT_PX_PER_FRAME, 0);
                     if (held.has('PageUp'))     synthDrag(0,  TILT_PX_PER_FRAME);
                     if (held.has('PageDown'))   synthDrag(0, -TILT_PX_PER_FRAME);
+                    // Pan (WASD): drag direction is inverted so the key direction
+                    // matches the way the camera moves (press A -> pan left).
+                    if (held.has('KeyA'))       synthPan( PAN_PX_PER_FRAME, 0);
+                    if (held.has('KeyD'))       synthPan(-PAN_PX_PER_FRAME, 0);
+                    if (held.has('KeyW'))       synthPan(0,  PAN_PX_PER_FRAME);
+                    if (held.has('KeyS'))       synthPan(0, -PAN_PX_PER_FRAME);
                 }
                 requestAnimationFrame(tick);
             }
             requestAnimationFrame(tick);
 
             console.log('[GaussianArrowNav] Arrow-key navigation enabled ' +
-                '(↑/↓ zoom, ←/→ orbit, PgUp/PgDn or Shift+↑/↓ tilt).');
+                '(↑/↓ zoom, ←/→ orbit, PgUp/PgDn or Shift+↑/↓ tilt, WASD pan).');
         })();
 
         console.log('[GaussianViewer] Ready - waiting for LOAD_MESH message');

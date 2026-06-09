@@ -29,6 +29,7 @@ installed for the node itself to work — it ships its own viewer and gsplat bun
 | ← / → | Orbit horizontally |
 | PageUp / PageDown | Tilt up / down (vertical orbit) |
 | Shift + ↑ / ↓ | Tilt up / down (alias) |
+| W / A / S / D | Pan up / left / down / right |
 | Mouse wheel | Zoom (still works) |
 | Left-drag / right-drag | Orbit / pan (still works) |
 
